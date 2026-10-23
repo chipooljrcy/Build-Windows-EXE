@@ -1,0 +1,19 @@
+name: Build Windows EXE
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install & Build EXE
+        run: |
+          pip install pyinstaller pillow
+          python -c "from PIL import Image, ImageDraw; img = Image.new('RGBA', (256, 256), (0, 0, 0, 0)); draw = ImageDraw.Draw(img); draw.rounded_rectangle([16, 16, 240, 240], radius=50, fill=(30, 136, 229)); draw.ellipse([60, 60, 165, 165], outline='white', width=18); draw.line([150, 150, 205, 205], fill='white', width=22); img.save('app.ico', format='ICO', sizes=[(256, 256), (64, 64), (32, 32)])"
+          pyinstaller -F -w -i "app.ico" --add-data "app.ico;." --name "全能文件管家" file_master.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: 全能文件管家-Windows版
+          path: dist/全能文件管家.exe
